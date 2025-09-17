@@ -1,69 +1,59 @@
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Secure Express Fleet Dashboard</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    th { background-color: #f4f4f4; }
-    .Red { background-color: red; color: white; }
-    .Yellow { background-color: yellow; }
-    .NoExpiry { background-color: lightgray; }
-    .Normal { background-color: white; }
-    input[type="text"], select { padding: 8px; margin-right: 10px; }
-    img { max-width: 100%; height: auto; margin-top: 20px; }
-  </style>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Secure Express Fleet Dashboard</title>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.20.0",
+    "vite": "https://aistudiocdn.com/vite@^7.1.5",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.0.3"
+  }
+}
+</script>
 </head>
-<body>
-  <h1>Secure Express Fleet Dashboard</h1>
-  <input type="file" id="csvFile" accept=".csv"><br><br>
-  <input type="text" id="searchInput" placeholder="Search Fleet Number...">
-  <select id="filterStatus">
-    <option value="All">All</option>
-    <option value="Red">Expiring in 7 Days</option>
-    <option value="Yellow">Expiring in 30 Days</option>
-  </select>
-  <div id="tableContainer"></div>
-  <img src="vin_expiry_status_chart.png" alt="VIN Expiry Status Chart">
-  <script>
-    document.getElementById('csvFile').addEventListener('change', function(e) {
-      const reader = new FileReader();
-      reader.onload = function() {
-        const lines = reader.result.split('
-');
-        const headers = lines[0].split(',');
-        const rows = lines.slice(1).map(line => line.split(','));
-        window.fleetData = rows.map(row => Object.fromEntries(headers.map((h, i) => [h.trim(), row[i] ? row[i].trim() : ''])));
-        renderTable();
-      };
-      reader.readAsText(e.target.files[0]);
-    });
+  <body class="bg-slate-900 text-slate-300 font-sans antialiased">
+    <div id="app" class="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+      <header class="mb-8">
+        <h1 class="text-3xl font-bold text-cyan-400">Secure Express Fleet Dashboard</h1>
+        <p class="text-slate-400 mt-1">Upload a CSV file to view and filter fleet registration status.</p>
+      </header>
 
-    document.getElementById('searchInput').addEventListener('input', renderTable);
-    document.getElementById('filterStatus').addEventListener('change', renderTable);
+      <main>
+        <div class="bg-slate-800 border border-slate-700 rounded-lg p-4 mb-6">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+            <div>
+              <label for="csvFile" class="block text-sm font-medium text-slate-300 mb-1">Upload Fleet CSV</label>
+              <input type="file" id="csvFile" accept=".csv" class="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-cyan-600 file:text-white hover:file:bg-cyan-500 cursor-pointer"/>
+            </div>
+            <div>
+              <label for="searchInput" class="block text-sm font-medium text-slate-300 mb-1">Search by Fleet Number</label>
+              <input type="text" id="searchInput" placeholder="Enter fleet number..." class="w-full bg-slate-700 border border-slate-600 rounded-md p-2 text-white placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none transition">
+            </div>
+            <div>
+              <label for="filterStatus" class="block text-sm font-medium text-slate-300 mb-1">Filter by Status</label>
+              <select id="filterStatus" class="w-full bg-slate-700 border border-slate-600 rounded-md p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none transition">
+                <option value="All">All Statuses</option>
+                <option value="Red">Expiring in 7 Days</option>
+                <option value="Yellow">Expiring in 30 Days</option>
+                <option value="Normal">Valid</option>
+                <option value="NoExpiry">No Expiry Date</option>
+              </select>
+            </div>
+          </div>
+        </div>
 
-    function renderTable() {
-      const search = document.getElementById('searchInput').value.toLowerCase();
-      const filter = document.getElementById('filterStatus').value;
-      let html = '<table><thead><tr>';
-      const keys = Object.keys(window.fleetData[0]);
-      keys.forEach(k => html += `<th>${k}</th>`);
-      html += '</tr></thead><tbody>';
-      window.fleetData.forEach(row => {
-        const status = row['Status'] || 'Normal';
-        if ((filter === 'All' || status === filter) && row['Fleet Number'].toLowerCase().includes(search)) {
-          html += `<tr class='${status}'>`;
-          keys.forEach(k => html += `<td>${row[k]}</td>`);
-          html += '</tr>';
-        }
-      });
-      html += '</tbody></table>';
-      document.getElementById('tableContainer').innerHTML = html;
-    }
-  </script>
-</body>
+        <div id="tableContainer" class="bg-slate-800 border border-slate-700 rounded-lg overflow-hidden">
+           <!-- Table will be rendered here by JavaScript -->
+        </div>
+      </main>
+
+    </div>
+    <script type="module" src="/src/index.ts"></script>
+  </body>
 </html>
